@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Result - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<div class="panel hero-panel result-banner {{ risk_variant }} mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <div class="section-label">
+                <i class="bi bi-shield-check"></i>
+                Detection Report
+            </div>
+            <h1 class="section-title mb-3">URL risk analysis completed</h1>
+            <p class="section-text mb-4 text-break">
+                <strong style="color: var(--heading-color);">Submitted URL:</strong> {{ result.original_url }}
+            </p>
+
+            <div class="risk-pill {{ risk_variant }} mb-3">
+                <i class="bi bi-activity"></i>
+                Risk Level: {{ result.risk_level }}
+            </div>
+
+            {% if result.risk_level == "Safe" %}
+                <p class="text-light-emphasis mb-0">This link shows only a low level of phishing indicators based on the current rule-based checks.</p>
+            {% elif result.risk_level == "Suspicious" %}
+                <p class="text-light-emphasis mb-0">This link contains several warning signs and should be checked carefully before opening or sharing information.</p>
+            {% else %}
+                <p class="text-light-emphasis mb-0">This link shows many phishing indicators and may be dangerous for login, payment, or personal information.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel-subtle p-4 text-center">
+                <div class="score-ring mb-3" style="background: radial-gradient(circle, #ffffff 52%, transparent 53%), conic-gradient({% if risk_variant == 'success' %}var(--success){% elif risk_variant == 'warning' %}var(--warning){% else %}var(--danger){% endif %} {{ score_percent * 3.6 }}deg, #dce8f8 0deg);">
+                    <div class="score-ring-value">
+                        <strong>{{ result.total_score }}</strong>
+                        <small class="text-light-emphasis">Score</small>
+                    </div>
+                </div>
+                <p class="text-light-emphasis mb-2">Phishing score level</p>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-{{ risk_variant }}" role="progressbar" style="width: {{ score_percent }}%;" aria-valuenow="{{ score_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-light-emphasis">Visual scale based on the current rule-based score</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="metric-number">{{ result.detected_features|length }}</div>
+            <div class="text-light-emphasis">Suspicious features detected</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-list-check"></i>
+            </div>
+            <div class="metric-number">{{ result.explanations|length }}</div>
+            <div class="text-light-emphasis">Explanations generated</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <div class="metric-number">{{ result.recommendations|length }}</div>
+            <div class="text-light-emphasis">Safety recommendations</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="explanation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-bug"></i></div>
+                <h3 class="h5 mb-0">Suspicious Features</h3>
+            </div>
+
+            {% if result.detected_features %}
+                <ul class="list-group list-group-flush">
+                    {% for feature in result.detected_features %}
+                        <li class="list-group-item px-0 py-3">{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
+                    No suspicious features were detected.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="explanation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-info-circle"></i></div>
+                <h3 class="h5 mb-0">Explanations</h3>
+            </div>
+
+            {% if result.explanations %}
+                <ul class="list-group list-group-flush">
+                    {% for explanation in result.explanations %}
+                        <li class="list-group-item px-0 py-3">{{ explanation }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-dash-circle fs-2 d-block mb-2"></i>
+                    No explanations to display.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="recommendation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-shield-shaded"></i></div>
+                <h3 class="h5 mb-0">Safety Recommendations</h3>
+            </div>
+
+            {% if result.recommendations %}
+                <ul class="list-group list-group-flush">
+                    {% for recommendation in result.recommendations %}
+                        <li class="list-group-item px-0 py-3">{{ recommendation }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-dash-circle fs-2 d-block mb-2"></i>
+                    No recommendations to display.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="panel data-card mb-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="risk-card safe h-100">
+                <span class="risk-pill success mb-3"><i class="bi bi-check-circle"></i>Safe</span>
+                <p class="text-light-emphasis mb-0">Generally lower warning level. Still confirm the website identity before entering passwords or payment details.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="risk-card suspicious h-100">
+                <span class="risk-pill warning mb-3"><i class="bi bi-exclamation-circle"></i>Suspicious</span>
+                <p class="text-light-emphasis mb-0">There are warning signs present. Review the URL carefully and avoid sharing sensitive information until verified.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="risk-card high-risk h-100">
+                <span class="risk-pill danger mb-3"><i class="bi bi-x-octagon"></i>High Risk</span>
+                <p class="text-light-emphasis mb-0">The link appears dangerous and should not be trusted for login, banking, or personal account activity.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="result-actions mt-4 d-flex flex-wrap gap-3">
+    <a href="{{ url_for('home') }}" class="btn btn-info">
+        <i class="bi bi-arrow-repeat me-2"></i>Check Another URL
+    </a>
+    <a href="{{ url_for('awareness') }}" class="btn btn-outline-light">
+        <i class="bi bi-lightbulb me-2"></i>View Awareness Tips
+    </a>
+    {% if session.get('user_id') %}
+        <a href="{{ url_for('user_history') }}" class="btn btn-outline-light">
+            <i class="bi bi-clock-history me-2"></i>View My History
+        </a>
+    {% else %}
+        <a href="{{ url_for('user_login') }}" class="btn btn-outline-light">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Save History
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

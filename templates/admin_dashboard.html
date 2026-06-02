@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<div class="panel hero-panel mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+            <div class="section-label">
+                <i class="bi bi-speedometer2"></i>
+                Security Monitoring Dashboard
+            </div>
+            <h1 class="section-title mb-2">Administrator Dashboard</h1>
+            <p class="text-light-emphasis mb-0">
+                Review scan activity, phishing statistics, and recent platform events in one place.
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-light">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="panel metric-card">
+            <div class="metric-icon"><i class="bi bi-database-check"></i></div>
+            <div class="metric-number">{{ stats.total_scans }}</div>
+            <div class="text-light-emphasis">Total Scans</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="panel metric-card">
+            <div class="metric-icon"><i class="bi bi-shield-check"></i></div>
+            <div class="metric-number text-success">{{ stats.safe_count }}</div>
+            <div class="text-light-emphasis">Safe URLs</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="panel metric-card">
+            <div class="metric-icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="metric-number" style="color: var(--warning);">{{ stats.suspicious_count }}</div>
+            <div class="text-light-emphasis">Suspicious URLs</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="panel metric-card">
+            <div class="metric-icon"><i class="bi bi-shield-fill-x"></i></div>
+            <div class="metric-number text-danger">{{ stats.high_risk_count }}</div>
+            <div class="text-light-emphasis">High Risk URLs</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div id="scan-history" class="panel data-card">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <h2 class="h4 mb-1">Scan History</h2>
+                    <p class="text-light-emphasis mb-0">Recent phishing scan records stored in the SQLite database.</p>
+                </div>
+            </div>
+
+            <form method="GET" action="{{ url_for('admin_dashboard') }}" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label for="q" class="form-label">URL keyword</label>
+                    <input type="text" class="form-control" id="q" name="q"
+                           placeholder="Search submitted URL"
+                           value="{{ q }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="risk" class="form-label">Risk Level</label>
+                    <select class="form-select" id="risk" name="risk">
+                        <option value="" {% if not risk %}selected{% endif %}>All</option>
+                        <option value="Safe" {% if risk == 'Safe' %}selected{% endif %}>Safe</option>
+                        <option value="Suspicious" {% if risk == 'Suspicious' %}selected{% endif %}>Suspicious</option>
+                        <option value="High Risk" {% if risk == 'High Risk' %}selected{% endif %}>High Risk</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username"
+                           placeholder="Owner username"
+                           value="{{ username }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light w-100">
+                        Reset
+                    </a>
+                </div>
+                {# Preserve current log_page when filters are submitted so the logs section stays put. #}
+                {% if log_page and log_page != 1 %}
+                    <input type="hidden" name="log_page" value="{{ log_page }}">
+                {% endif %}
+            </form>
+
+            <div id="scan-history-container">
+                {% include "partials/admin_scan_history_table.html" %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div id="activity-logs" class="panel data-card">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-journal-code"></i></div>
+                <div>
+                    <h2 class="h4 mb-1">Activity Logs</h2>
+                    <p class="text-light-emphasis mb-0">Browse system activity records.</p>
+                </div>
+            </div>
+
+            <div id="activity-logs-container">
+                {% include "partials/admin_activity_logs_table.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function buildPartialUrl(rawHref, partialName) {
+            // Build a URL that adds (or replaces) the "partial" query parameter
+            // and strips any hash fragment so the browser does not jump.
+            var fullUrl = new URL(rawHref, window.location.origin);
+            fullUrl.searchParams.set("partial", partialName);
+            fullUrl.hash = "";
+            return fullUrl.toString();
+        }
+
+        function attachAjaxPagination(containerId, partialName) {
+            var container = document.getElementById(containerId);
+            if (!container) {
+                return;
+            }
+
+            container.addEventListener("click", function (event) {
+                var link = event.target.closest("a.page-link[data-partial='" + partialName + "']");
+                if (!link) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                var partialUrl = buildPartialUrl(link.getAttribute("href"), partialName);
+
+                fetch(partialUrl, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    credentials: "same-origin"
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error("Pagination request failed: " + response.status);
+                        }
+                        return response.text();
+                    })
+                    .then(function (html) {
+                        container.innerHTML = html;
+
+                        // Update the browser URL without the "partial" param so
+                        // a manual reload still works for the user's current view.
+                        var displayUrl = new URL(link.getAttribute("href"), window.location.origin);
+                        displayUrl.hash = "";
+                        window.history.replaceState({}, "", displayUrl.toString());
+                    })
+                    .catch(function (error) {
+                        // Fall back to a normal navigation if AJAX fails.
+                        console.error(error);
+                        window.location.href = link.getAttribute("href");
+                    });
+            });
+        }
+
+        attachAjaxPagination("scan-history-container", "scans");
+        attachAjaxPagination("activity-logs-container", "logs");
+    })();
+</script>
+{% endblock %}

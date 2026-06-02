@@ -1,0 +1,79 @@
+<div class="table-wrap table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Owner</th>
+                <th>Submitted URL</th>
+                <th>IP Address</th>
+                <th>Risk Level</th>
+                <th>Score</th>
+                <th>Scan Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if scans %}
+                {% for scan in scans %}
+                    <tr>
+                        <td class="table-code">{{ scan.id }}</td>
+                        <td class="table-code">{{ scan.owner_username if scan.owner_username else 'Guest' }}</td>
+                        <td class="table-code text-break">
+                            <a href="{{ url_for('admin_scan_detail', scan_id=scan.id) }}" class="table-link">
+                                {{ scan.submitted_url }}
+                            </a>
+                        </td>
+                        <td class="table-code">{{ scan.ip_address or 'Unknown' }}</td>
+                        <td>
+                            {% if scan.risk_level == "Safe" %}
+                                <span class="risk-pill success"><i class="bi bi-check-circle"></i>{{ scan.risk_level }}</span>
+                            {% elif scan.risk_level == "Suspicious" %}
+                                <span class="risk-pill warning"><i class="bi bi-exclamation-circle"></i>{{ scan.risk_level }}</span>
+                            {% else %}
+                                <span class="risk-pill danger"><i class="bi bi-x-octagon"></i>{{ scan.risk_level }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="table-code">{{ scan.score }}</td>
+                        <td class="table-code">{{ scan.scanned_at }} SGT</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="bi bi-inboxes fs-2 d-block mb-2"></i>
+                            No scan records found.
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if scans %}
+    <div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Scan history pagination">
+            <ul class="pagination mb-0 align-items-center">
+                <li class="page-item {% if scan_page <= 1 %}disabled{% endif %}">
+                    {% if scan_page > 1 %}
+                        <a class="page-link" data-partial="scans"
+                           href="{{ url_for('admin_dashboard', q=q, risk=risk, username=username, scan_page=scan_page-1, log_page=log_page) }}">Previous</a>
+                    {% else %}
+                        <span class="page-link">Previous</span>
+                    {% endif %}
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Scan History: Page {{ scan_page }} of {{ scan_total_pages }}</span>
+                </li>
+                <li class="page-item {% if scan_page >= scan_total_pages %}disabled{% endif %}">
+                    {% if scan_page < scan_total_pages %}
+                        <a class="page-link" data-partial="scans"
+                           href="{{ url_for('admin_dashboard', q=q, risk=risk, username=username, scan_page=scan_page+1, log_page=log_page) }}">Next</a>
+                    {% else %}
+                        <span class="page-link">Next</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+    </div>
+{% endif %}

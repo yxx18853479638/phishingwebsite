@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}My Scan History - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<div class="panel hero-panel mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+            <div class="section-label">
+                <i class="bi bi-clock-history"></i>
+                Personal Scan Records
+            </div>
+            <h1 class="section-title mb-2">My Scan History</h1>
+            <p class="text-light-emphasis mb-0">
+                Review the phishing checks saved to your account, {{ session['user_username'] }}.
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('home') }}" class="btn btn-outline-light">
+                <i class="bi bi-search me-2"></i>Scan Another URL
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="panel data-card">
+    <div class="table-wrap table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Submitted URL</th>
+                    <th>Risk Level</th>
+                    <th>Score</th>
+                    <th>Scan Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if scans %}
+                    {% for scan in scans %}
+                        <tr>
+                            <td class="table-code">{{ loop.revindex }}</td>
+                            <td class="table-code text-break">
+                                <a href="{{ url_for('user_scan_detail', scan_id=scan.id) }}" class="table-link">
+                                    {{ scan.submitted_url }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if scan.risk_level == "Safe" %}
+                                    <span class="risk-pill success"><i class="bi bi-check-circle"></i>{{ scan.risk_level }}</span>
+                                {% elif scan.risk_level == "Suspicious" %}
+                                    <span class="risk-pill warning"><i class="bi bi-exclamation-circle"></i>{{ scan.risk_level }}</span>
+                                {% else %}
+                                    <span class="risk-pill danger"><i class="bi bi-x-octagon"></i>{{ scan.risk_level }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="table-code">{{ scan.score }}</td>
+                            <td class="table-code">{{ scan.scanned_at }} SGT</td>
+                            <td>
+                                <a href="{{ url_for('user_scan_detail', scan_id=scan.id) }}" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye me-1"></i>View Details
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="bi bi-inboxes fs-2 d-block mb-2"></i>
+                                No scans have been saved to your account yet.
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

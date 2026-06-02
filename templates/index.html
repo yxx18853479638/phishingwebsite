@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<section class="home-hero mb-4">
+    <div class="home-hero-content">
+        <div class="section-label home-label">
+            <i class="bi bi-radar"></i>
+            Rule-Based Security Analysis
+        </div>
+        <h1 class="home-title">Phishing URL Detection Platform</h1>
+        <p class="home-subtitle">
+            Enter a suspicious website link and receive a clear phishing risk report.
+        </p>
+
+        <form method="POST" action="{{ url_for('check_url') }}" class="home-url-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="url" class="form-label visually-hidden">Website URL</label>
+            <div class="home-url-row">
+                <input
+                    type="text"
+                    class="form-control home-url-input"
+                    id="url"
+                    name="url"
+                    placeholder="Example: google.com or https://example.com/login"
+                    required
+                >
+            </div>
+            <button type="submit" class="btn btn-info home-url-button">
+                <i class="bi bi-search me-2"></i>Analyse URL
+            </button>
+            {% if session.get('user_id') %}
+                <div class="home-form-note">
+                    Your scan result will be saved to your account history.
+                </div>
+            {% else %}
+                <div class="home-form-note" style="color: #FFD700;">
+                    Guest scan will not be saved. Please log in to save your scan history.
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="panel feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-shield-exclamation"></i>
+            </div>
+            <h4>Threat Indicators</h4>
+            <p class="text-light-emphasis mb-0">
+                Detect suspicious keywords, unusual domains, missing HTTPS, IP-based links, and shortened URLs.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <h4>Clear Explanations</h4>
+            <p class="text-light-emphasis mb-0">
+                Understand why a URL was flagged with simple explanations instead of a score alone.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <h4>History and Monitoring</h4>
+            <p class="text-light-emphasis mb-0">
+                Users can review saved checks, while administrators can monitor platform activity and results.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="panel data-card mb-4">
+    <div class="mb-4">
+        <div class="section-label">
+            <i class="bi bi-diagram-3"></i>
+            How It Works
+        </div>
+        <h2 class="h3 mb-2">Simple steps from submission to risk explanation</h2>
+        <p class="text-light-emphasis mb-0">The platform keeps the process straightforward so users can quickly understand the result.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="how-step">
+                <div class="step-icon"><i class="bi bi-1-circle"></i></div>
+                <h4 class="h5">Enter a URL</h4>
+                <p class="text-light-emphasis mb-0">Paste a website link into the checker card on the homepage.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="how-step">
+                <div class="step-icon"><i class="bi bi-2-circle"></i></div>
+                <h4 class="h5">Run rule checks</h4>
+                <p class="text-light-emphasis mb-0">The system reviews suspicious URL patterns and calculates a phishing score.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="how-step">
+                <div class="step-icon"><i class="bi bi-3-circle"></i></div>
+                <h4 class="h5">Review the result</h4>
+                <p class="text-light-emphasis mb-0">Read the risk level, explanations, and recommended next steps.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel data-card">
+    <div class="mb-4">
+        <div class="section-label">
+            <i class="bi bi-activity"></i>
+            Risk Levels
+        </div>
+        <h2 class="h3 mb-2">What each risk level means</h2>
+        <p class="text-light-emphasis mb-0">The result page uses three risk bands so the warning level is easy to interpret.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="risk-card safe">
+                <span class="risk-pill success mb-3"><i class="bi bi-check-circle"></i>Safe</span>
+                <h4 class="h5">Low warning level</h4>
+                <p class="text-light-emphasis mb-0">The link shows few phishing indicators, but users should still check the destination before sharing sensitive information.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="risk-card suspicious">
+                <span class="risk-pill warning mb-3"><i class="bi bi-exclamation-circle"></i>Suspicious</span>
+                <h4 class="h5">Needs careful review</h4>
+                <p class="text-light-emphasis mb-0">The link contains warning signs that deserve closer inspection before opening or entering account details.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="risk-card high-risk">
+                <span class="risk-pill danger mb-3"><i class="bi bi-x-octagon"></i>High Risk</span>
+                <h4 class="h5">Strong phishing signals</h4>
+                <p class="text-light-emphasis mb-0">The URL appears dangerous and should be avoided for logins, payments, or personal information.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

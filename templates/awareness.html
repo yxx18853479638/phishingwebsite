@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Awareness - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<div class="panel hero-panel mb-4">
+    <div class="section-label">
+        <i class="bi bi-journal-text"></i>
+        User Awareness Module
+    </div>
+    <h1 class="section-title">Learn how phishing websites work and how to stay safe online.</h1>
+    <p class="section-text mb-0">
+        Phishing is a cyber attack in which criminals create fake websites, messages, or emails to trick users into sharing passwords, banking details, or personal information.
+        User awareness is important because many phishing attacks succeed by targeting human trust rather than technical weaknesses.
+    </p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="panel data-card h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-exclamation-octagon"></i></div>
+                <h3 class="h5 mb-0">Common Signs of Phishing Websites</h3>
+            </div>
+            <ul class="info-list">
+                <li><i class="bi bi-chevron-right"></i><span>Very long or unusual website addresses</span></li>
+                <li><i class="bi bi-chevron-right"></i><span>Misspelled brand names or fake-looking domains</span></li>
+                <li><i class="bi bi-chevron-right"></i><span>Lack of HTTPS on websites asking for personal details</span></li>
+                <li><i class="bi bi-chevron-right"></i><span>Too many numbers, special symbols, or hyphens</span></li>
+                <li><i class="bi bi-chevron-right"></i><span>Urgent words such as verify, confirm, secure, or update</span></li>
+                <li><i class="bi bi-chevron-right"></i><span>Pages that ask for passwords unexpectedly</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="panel data-card h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-shield-check"></i></div>
+                <h3 class="h5 mb-0">Safe Browsing Tips</h3>
+            </div>
+            <ul class="info-list">
+                <li><i class="bi bi-check2-circle"></i><span>Type important website addresses directly into your browser.</span></li>
+                <li><i class="bi bi-check2-circle"></i><span>Check the main domain name carefully before logging in.</span></li>
+                <li><i class="bi bi-check2-circle"></i><span>Avoid clicking unknown links in emails or text messages.</span></li>
+                <li><i class="bi bi-check2-circle"></i><span>Look for HTTPS before entering passwords or payment details.</span></li>
+                <li><i class="bi bi-check2-circle"></i><span>Use strong passwords and enable two-factor authentication.</span></li>
+                <li><i class="bi bi-check2-circle"></i><span>Keep your browser, operating system, and antivirus updated.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="panel data-card h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-x-circle"></i></div>
+                <h3 class="h5 mb-0">What Not to Do</h3>
+            </div>
+            <ul class="info-list">
+                <li><i class="bi bi-dash-circle"></i><span>Do not enter your password, banking details, or personal information on a suspicious website.</span></li>
+                <li><i class="bi bi-dash-circle"></i><span>Do not trust a website only because it uses familiar words such as secure or verify.</span></li>
+                <li><i class="bi bi-dash-circle"></i><span>Do not ignore unusual login prompts, urgent warnings, or poor-quality page design.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="panel data-card h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-life-preserver"></i></div>
+                <h3 class="h5 mb-0">What To Do When You Find a Suspicious Website</h3>
+            </div>
+            <ul class="info-list">
+                <li><i class="bi bi-arrow-right-circle"></i><span>Close the page immediately if something looks unsafe.</span></li>
+                <li><i class="bi bi-arrow-right-circle"></i><span>Analyse the URL again using this detection platform or another trusted security tool.</span></li>
+                <li><i class="bi bi-arrow-right-circle"></i><span>Report the suspicious link to your school, company, or service provider.</span></li>
+                <li><i class="bi bi-arrow-right-circle"></i><span>Change your password immediately if you already entered it on a fake website.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

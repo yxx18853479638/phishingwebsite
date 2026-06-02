@@ -1,0 +1,63 @@
+<div class="table-wrap table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Admin ID</th>
+                <th>Action Type</th>
+                <th>Action Details</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if logs %}
+                {% for log in logs %}
+                    <tr>
+                        <td class="table-code">{{ log.id }}</td>
+                        <td class="table-code">{{ log.admin_id if log.admin_id else '-' }}</td>
+                        <td>{{ log.action_type }}</td>
+                        <td class="text-break">{{ log.action_details }}</td>
+                        <td class="table-code">{{ log.created_at }} SGT</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                            No activity logs found.
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if logs %}
+    <div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Activity logs pagination">
+            <ul class="pagination mb-0 align-items-center">
+                <li class="page-item {% if log_page <= 1 %}disabled{% endif %}">
+                    {% if log_page > 1 %}
+                        <a class="page-link" data-partial="logs"
+                           href="{{ url_for('admin_dashboard', q=q, risk=risk, username=username, scan_page=scan_page, log_page=log_page-1) }}">Previous</a>
+                    {% else %}
+                        <span class="page-link">Previous</span>
+                    {% endif %}
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Activity Logs: Page {{ log_page }} of {{ log_total_pages }}</span>
+                </li>
+                <li class="page-item {% if log_page >= log_total_pages %}disabled{% endif %}">
+                    {% if log_page < log_total_pages %}
+                        <a class="page-link" data-partial="logs"
+                           href="{{ url_for('admin_dashboard', q=q, risk=risk, username=username, scan_page=scan_page, log_page=log_page+1) }}">Next</a>
+                    {% else %}
+                        <span class="page-link">Next</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+    </div>
+{% endif %}

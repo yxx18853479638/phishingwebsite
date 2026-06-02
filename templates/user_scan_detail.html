@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Detail - Phishing Detection Platform{% endblock %}
+
+{% block content %}
+<div class="panel hero-panel result-banner {{ risk_variant }} mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <div class="section-label">
+                <i class="bi bi-file-earmark-text"></i>
+                My Scan Record
+            </div>
+            <h1 class="section-title mb-3">Scan detail</h1>
+            <p class="section-text mb-3 text-break">
+                <strong style="color: var(--heading-color);">Submitted URL:</strong> {{ scan.submitted_url }}
+            </p>
+            <p class="text-light-emphasis mb-3">
+                Review the saved phishing analysis result for this scan from your history.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+                <span class="risk-pill {{ risk_variant }}">
+                    <i class="bi bi-activity"></i>
+                    Risk Level: {{ scan.risk_level }}
+                </span>
+                <span class="badge-soft"><i class="bi bi-clock-history"></i>{{ scan.scanned_at }} SGT</span>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel-subtle p-4 text-center">
+                <div class="score-ring mb-3" style="background: radial-gradient(circle, #ffffff 52%, transparent 53%), conic-gradient({% if risk_variant == 'success' %}var(--success){% elif risk_variant == 'warning' %}var(--warning){% else %}var(--danger){% endif %} {{ score_percent * 3.6 }}deg, #dce8f8 0deg);">
+                    <div class="score-ring-value">
+                        <strong>{{ scan.score }}</strong>
+                        <small class="text-light-emphasis">Score</small>
+                    </div>
+                </div>
+                <p class="text-light-emphasis mb-2">Stored phishing score</p>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-{{ risk_variant }}" role="progressbar" style="width: {{ score_percent }}%;" aria-valuenow="{{ score_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-light-emphasis">Visual scale based on the saved score for this scan.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="metric-number">{{ scan.detected_features|length }}</div>
+            <div class="text-light-emphasis">Suspicious features available</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-list-check"></i>
+            </div>
+            <div class="metric-number">{{ scan.explanations|length }}</div>
+            <div class="text-light-emphasis">Explanations stored</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel metric-card">
+            <div class="metric-icon">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <div class="metric-number">{{ scan.recommendations|length }}</div>
+            <div class="text-light-emphasis">Recommendations stored</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="panel data-card h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-card-list"></i></div>
+                <h2 class="h4 mb-0">Scan Information</h2>
+            </div>
+
+            <ul class="info-list">
+                <li>
+                    <i class="bi bi-link-45deg"></i>
+                    <div class="text-break"><strong>URL:</strong> {{ scan.submitted_url }}</div>
+                </li>
+                <li>
+                    <i class="bi bi-pc-display-horizontal"></i>
+                    <div><strong>IP Address:</strong> {{ scan.ip_address or 'Unknown' }}</div>
+                </li>
+                <li>
+                    <i class="bi bi-shield-check"></i>
+                    <div><strong>Risk Level:</strong> {{ scan.risk_level }}</div>
+                </li>
+                <li>
+                    <i class="bi bi-bar-chart"></i>
+                    <div><strong>Score:</strong> {{ scan.score }}</div>
+                </li>
+                <li>
+                    <i class="bi bi-clock-history"></i>
+                    <div><strong>Scan Date:</strong> {{ scan.scanned_at }} SGT</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="explanation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-bug"></i></div>
+                <h2 class="h4 mb-0">Detected Features</h2>
+            </div>
+
+            {% if scan.detected_features %}
+                <ul class="list-group list-group-flush">
+                    {% for feature in scan.detected_features %}
+                        <li class="list-group-item px-0 py-3">{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-dash-circle fs-2 d-block mb-2"></i>
+                    Detected features are not available for this scan.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="explanation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-info-circle"></i></div>
+                <h2 class="h4 mb-0">Explanations</h2>
+            </div>
+
+            {% if scan.explanations %}
+                <ul class="list-group list-group-flush">
+                    {% for explanation in scan.explanations %}
+                        <li class="list-group-item px-0 py-3">{{ explanation }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-dash-circle fs-2 d-block mb-2"></i>
+                    No explanations are available for this scan.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="recommendation-card {{ risk_variant }} h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="mini-icon mb-0"><i class="bi bi-shield-shaded"></i></div>
+                <h2 class="h4 mb-0">Recommendations</h2>
+            </div>
+
+            {% if scan.recommendations %}
+                <ul class="list-group list-group-flush">
+                    {% for recommendation in scan.recommendations %}
+                        <li class="list-group-item px-0 py-3">{{ recommendation }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-dash-circle fs-2 d-block mb-2"></i>
+                    No recommendations are available for this scan.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="result-actions mt-4 d-flex flex-wrap gap-3">
+    <a href="{{ url_for('user_history') }}" class="btn btn-info">
+        <i class="bi bi-arrow-left me-2"></i>Back to My History
+    </a>
+    <a href="{{ url_for('home') }}" class="btn btn-outline-light">
+        <i class="bi bi-search me-2"></i>Scan Another URL
+    </a>
+</div>
+{% endblock %}
