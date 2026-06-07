@@ -15,10 +15,15 @@
                 Review the phishing checks saved to your account, {{ session['user_username'] }}.
             </p>
         </div>
-        <div>
+        <div class="d-flex flex-column flex-sm-row gap-2">
             <a href="{{ url_for('home') }}" class="btn btn-outline-light">
                 <i class="bi bi-search me-2"></i>Scan Another URL
             </a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('user_change_password') }}" class="btn btn-outline-light">
+                    <i class="bi bi-key me-2"></i>Change Password
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -31,6 +36,7 @@
                     <th>No.</th>
                     <th>Submitted URL</th>
                     <th>Risk Level</th>
+                    <th>Detected Features</th>
                     <th>Score</th>
                     <th>Scan Time</th>
                     <th>Action</th>
@@ -55,6 +61,7 @@
                                     <span class="risk-pill danger"><i class="bi bi-x-octagon"></i>{{ scan.risk_level }}</span>
                                 {% endif %}
                             </td>
+                            <td class="table-code text-break">{{ scan.detected_features_preview }}</td>
                             <td class="table-code">{{ scan.score }}</td>
                             <td class="table-code">{{ scan.scanned_at }} SGT</td>
                             <td>
@@ -66,7 +73,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="empty-state">
                                 <i class="bi bi-inboxes fs-2 d-block mb-2"></i>
                                 No scans have been saved to your account yet.

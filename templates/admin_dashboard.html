@@ -15,7 +15,10 @@
                 Review scan activity, phishing statistics, and recent platform events in one place.
             </p>
         </div>
-        <div>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            <a href="{{ url_for('admin_change_password') }}" class="btn btn-outline-light">
+                <i class="bi bi-key me-2"></i>Change Password
+            </a>
             <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-light">
                 <i class="bi bi-box-arrow-right me-2"></i>Logout
             </a>
@@ -50,6 +53,60 @@
             <div class="metric-icon"><i class="bi bi-shield-fill-x"></i></div>
             <div class="metric-number text-danger">{{ stats.high_risk_count }}</div>
             <div class="text-light-emphasis">High Risk URLs</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="panel data-card chart-card">
+            <div class="chart-header">
+                <div class="chart-icon"><i class="bi bi-pie-chart"></i></div>
+                <div class="chart-title-text">
+                    <h3>Risk Breakdown</h3>
+                    <p>Safe, suspicious, and high-risk scan counts.</p>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel data-card chart-card">
+            <div class="chart-header">
+                <div class="chart-icon"><i class="bi bi-bar-chart"></i></div>
+                <div class="chart-title-text">
+                    <h3>Scans Over Time</h3>
+                    <p>Daily scan totals from recent activity.</p>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel data-card chart-card">
+            <div class="chart-header">
+                <div class="chart-icon"><i class="bi bi-list-check"></i></div>
+                <div class="chart-title-text">
+                    <h3>Common Features</h3>
+                    <p>Most frequent detected phishing indicators.</p>
+                </div>
+            </div>
+            {% if feature_labels %}
+                <div class="chart-box">
+                    <canvas id="featuresChart"></canvas>
+                </div>
+            {% else %}
+                <div class="chart-box chart-empty-message">
+                    <div class="empty-state mb-0">
+                        <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                        No feature data available yet
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -95,6 +152,11 @@
                         Reset
                     </a>
                 </div>
+                <div class="col-12 d-flex justify-content-end">
+                    <a href="{{ url_for('admin_export_scans_csv', q=q, risk=risk, username=username) }}" class="btn btn-outline-light">
+                        <i class="bi bi-download me-2"></i>Export CSV
+                    </a>
+                </div>
                 {# Preserve current log_page when filters are submitted so the logs section stays put. #}
                 {% if log_page and log_page != 1 %}
                     <input type="hidden" name="log_page" value="{{ log_page }}">
@@ -123,6 +185,104 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        var riskChartData = {{ risk_chart|tojson }};
+        var dailyChartData = {{ daily_chart|tojson }};
+        const featureLabels = {{ feature_labels | tojson }};
+        const featureCounts = {{ feature_counts | tojson }};
+
+        function renderChart(canvasId, chartType, labels, counts, label, colors) {
+            var canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                return;
+            }
+
+            new Chart(canvas, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: counts,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: chartType === "doughnut",
+                            labels: {
+                                color: "#111827",
+                                font: {
+                                    size: 12,
+                                    weight: "500"
+                                }
+                            }
+                        }
+                    },
+                    scales: chartType === "doughnut" ? {} : {
+                        x: {
+                            ticks: {
+                                color: "#111827",
+                                font: {
+                                    size: 12,
+                                    weight: "500"
+                                }
+                            },
+                            grid: { color: "rgba(17, 24, 39, 0.08)" }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: "#111827",
+                                precision: 0,
+                                font: {
+                                    size: 12,
+                                    weight: "500"
+                                }
+                            },
+                            grid: { color: "rgba(17, 24, 39, 0.08)" }
+                        }
+                    }
+                }
+            });
+        }
+
+        renderChart(
+            "riskChart",
+            "doughnut",
+            riskChartData.labels,
+            riskChartData.counts,
+            "Scans",
+            ["#22c55e", "#f59e0b", "#ef4444"]
+        );
+        renderChart(
+            "dailyChart",
+            "bar",
+            dailyChartData.labels,
+            dailyChartData.counts,
+            "Daily scans",
+            "#38bdf8"
+        );
+        if (featureLabels.length > 0 && featureCounts.length > 0) {
+            renderChart(
+                "featuresChart",
+                "bar",
+                featureLabels,
+                featureCounts,
+                "Detected features",
+                "#a78bfa"
+            );
+        }
+    })();
+</script>
 
 <script>
     (function () {

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS admins (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    failed_login_attempts INTEGER DEFAULT 0,
+    locked_until DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 """
@@ -21,6 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    failed_login_attempts INTEGER DEFAULT 0,
+    locked_until DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 """
@@ -33,6 +37,7 @@ CREATE TABLE IF NOT EXISTS scans (
     submitted_url TEXT NOT NULL,
     risk_level TEXT NOT NULL,
     score INTEGER NOT NULL,
+    detected_features TEXT NOT NULL DEFAULT '[]',
     explanations TEXT NOT NULL,
     recommendations TEXT NOT NULL,
     ip_address TEXT,
@@ -80,14 +85,45 @@ def initialize_database():
     for table_sql in TABLES:
         cursor.execute(table_sql)
 
+    cursor.execute("PRAGMA table_info(users)")
+    user_columns = [column[1] for column in cursor.fetchall()]
+
+    if "failed_login_attempts" not in user_columns:
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0"
+        )
+
+    if "locked_until" not in user_columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN locked_until DATETIME")
+
+    cursor.execute("PRAGMA table_info(admins)")
+    admin_columns = [column[1] for column in cursor.fetchall()]
+
+    if "failed_login_attempts" not in admin_columns:
+        cursor.execute(
+            "ALTER TABLE admins ADD COLUMN failed_login_attempts INTEGER DEFAULT 0"
+        )
+
+    if "locked_until" not in admin_columns:
+        cursor.execute("ALTER TABLE admins ADD COLUMN locked_until DATETIME")
+
     cursor.execute("PRAGMA table_info(scans)")
     scan_columns = [column[1] for column in cursor.fetchall()]
 
     if "user_id" not in scan_columns:
         cursor.execute("ALTER TABLE scans ADD COLUMN user_id INTEGER")
 
+    if "detected_features" not in scan_columns:
+        cursor.execute(
+            "ALTER TABLE scans ADD COLUMN detected_features TEXT NOT NULL DEFAULT '[]'"
+        )
+
     if "ip_address" not in scan_columns:
         cursor.execute("ALTER TABLE scans ADD COLUMN ip_address TEXT")
+
+    cursor.execute(
+        "UPDATE scans SET detected_features = '[]' WHERE detected_features IS NULL"
+    )
 
     connection.commit()
     connection.close()
