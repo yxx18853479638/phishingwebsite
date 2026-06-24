@@ -7,3 +7,4 @@ idna==3.11
 waitress==3.0.2
 Flask-WTF==1.2.2
 gunicorn
+psycopg2-binary

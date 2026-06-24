@@ -2,7 +2,6 @@ import csv
 import io
 import json
 import os
-import sqlite3
 from collections import Counter
 from datetime import datetime, timezone, timedelta
 from functools import wraps
@@ -13,7 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from waitress import serve
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import create_connection, initialize_database
+from database import create_connection, initialize_database, is_postgres_enabled
 from detection import analyze_url, normalize_url
 
 
@@ -47,7 +46,10 @@ def get_singapore_time_string():
 def get_db_connection():
     """Open a database connection and return rows like dictionaries."""
     connection = create_connection()
-    connection.row_factory = sqlite3.Row
+    if not is_postgres_enabled():
+        import sqlite3
+
+        connection.row_factory = sqlite3.Row
     return connection
 
 
@@ -91,13 +93,18 @@ def join_list_for_csv(items):
 
 
 
-def parse_database_datetime(datetime_text):
-    """Parse a database datetime string produced by get_singapore_time_string."""
-    if not datetime_text:
+def parse_database_datetime(datetime_value):
+    """Parse a database datetime value from SQLite text or PostgreSQL timestamp."""
+    if not datetime_value:
         return None
 
+    if isinstance(datetime_value, datetime):
+        if datetime_value.tzinfo:
+            return datetime_value.astimezone(SINGAPORE_TIMEZONE)
+        return datetime_value.replace(tzinfo=SINGAPORE_TIMEZONE)
+
     try:
-        return datetime.strptime(datetime_text, "%Y-%m-%d %H:%M:%S").replace(
+        return datetime.strptime(datetime_value, "%Y-%m-%d %H:%M:%S").replace(
             tzinfo=SINGAPORE_TIMEZONE
         )
     except (TypeError, ValueError):
