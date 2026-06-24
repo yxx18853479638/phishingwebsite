@@ -8,3 +8,4 @@ waitress==3.0.2
 Flask-WTF==1.2.2
 gunicorn
 psycopg2-binary
+python-dotenv

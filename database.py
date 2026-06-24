@@ -1,8 +1,9 @@
 import os
+from dotenv import load_dotenv
 import re
 import sqlite3
 from urllib.parse import urlparse, urlunparse
-
+load_dotenv()
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
